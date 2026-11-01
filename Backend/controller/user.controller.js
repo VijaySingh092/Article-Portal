@@ -1,0 +1,57 @@
+import User from "../models/user.model.js"
+import { errorHandler } from "../utils/error.js"
+import bcryptjs from "bcryptjs"
+
+export const updateUser = async(req, res, next)=>{
+    if(req.user.id !== req.params.userId){
+        return next(errorHandler(403,"You can only update your own account!"))
+    }
+
+    if(req.body.password){
+        if(req.body.password.length<8){
+            return next(errorHandler(400,"Password must be atleast 8 characters"))
+        }
+
+        req.body.password = bcryptjs.hashSync(req.body.password, 10)
+    }
+
+    if(req.body.userName){
+        if(req.body.userName.length<5 || req.body.userName.length>20){
+            return next(errorHandler(400,"userName must be between 5 and 20 characters"))
+        }
+
+       if(req.body.userName.includes(" ")){
+        return next(errorHandler(400,"userName cannot contain spaces"))
+       }
+
+       if( req.body.userName !== req.body.userName.toLowerCase()){
+            req.body.userName = req.body.userName.toLowerCase()
+       }
+
+       if(!req.body.userName.match(/^[a-zA-Z0-9]+$/)){
+        return next(
+            errorHandler(400,"userName can only contain letters and numbers")
+        )
+       }
+    }
+
+    try{
+       
+        const updatedUser = await User.findByIdAndUpdate(req.params.userId,{
+            $set:{
+                userName: req.body.userName,
+                email:req.body.email,
+                profilePicture:req.body.profilePicture,
+                password:req.body.password
+            },
+        },
+        { returnDocument: 'after', runValidators: true }
+    )
+   
+    const { password:pass, ...rest } = updatedUser._doc
+
+    res.status(200).json(rest)
+    }catch(error){
+       next(error)
+    }
+}
