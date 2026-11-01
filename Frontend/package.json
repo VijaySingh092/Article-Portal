@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@appwrite.io/react": "^0.1.1",
     "@base-ui/react": "^1.9.0",
     "@fontsource-variable/geist": "^5.3.0",
     "@hookform/resolvers": "^6.0.1",
     "@reduxjs/toolkit": "^2.13.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-query": "^5.105.0",
+    "appwrite": "^25.2.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
     "firebase": "^13.1.0",
