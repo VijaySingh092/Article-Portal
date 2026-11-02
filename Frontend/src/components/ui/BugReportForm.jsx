@@ -31,9 +31,12 @@ const formSchema = z.object({
     .min(3, "userName must be at least 3 characters.")
     .max(20, "userName must be at most 20 characters."),
 
-  email: z
-    .string()
-    .min({message:"Please enter a valid email address."}),
+  // email: z
+  //   .string()
+  //    .email("Please enter a valid email address."),
+   email: z.email({
+    message: "Please enter a valid email address."
+  }),
 
   password: z
     .string()
@@ -68,7 +71,7 @@ export function BugReportForm() {
       })
 
       const data = await res.json()
-
+      console.log(res)
        if (!res.ok || data.success === false) {
         const message =
           typeof data.message === "string"
@@ -91,12 +94,7 @@ export function BugReportForm() {
     }
   }
 
-  function handleGoogleSignup() {
-    toast.info("Google signup clicked", {
-      description: "Connect Google authentication to continue.",
-      position: "bottom-right",
-    })
-  }
+  
 
   return (
     <>
