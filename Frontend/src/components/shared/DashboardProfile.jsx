@@ -2,12 +2,14 @@ import React, { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { updateFailure, updateStart, updateSuccess } from '@/redux/user/userSlice'
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart, updateSuccess } from '@/redux/user/userSlice'
 import { getFilePreview, uploadFile } from '@/lib/appwrite/uploadImage'
 import { toast } from "sonner"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from '../ui/alert-dialog'
+import { deleteUser } from 'firebase/auth'
 
 const DashboardProfile = () => {
-    const {currentUser} = useSelector((state)=>state.user)
+    const {currentUser, error} = useSelector((state)=>state.user)
 
     const profilePicRef = useRef()
     const dispatch = useDispatch()
@@ -84,6 +86,25 @@ const DashboardProfile = () => {
       }
     }
 
+    const handleDeleteUser= async()=>{
+      try{
+        dispatch(deleteUserStart())
+        const res = await fetch(`/api/user/delete/${currentUser._id}`,{
+          method: "DELETE",
+        })
+        const data = await res.json()
+        
+        if(!res.ok){
+          dispatch(deleteUserFailure(data.message))
+        }else{
+          dispatch(deleteUserSuccess())
+        }
+      }catch(error){
+        console.log(error)
+        dispatch(deleteUserFailure(error.message))
+      }
+    }
+
   return <div className='max-w-lg mx-auto p-3 w-full'>
     <h1 className='my-7 text-center font-semibold text-3xl'>
         Update Your Profile
@@ -133,9 +154,38 @@ const DashboardProfile = () => {
       </form>
 
       <div className='text-red-500 flex justify-between mt-5 cursor-pointer'>
-        <span>Delete Account</span>
-        <span>Sign Out</span>
+        <AlertDialog>
+          <AlertDialogTrigger asChiled>
+              <Button className="cursor-pointer">Delete Account</Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account from our servers.
+          </AlertDialogDescription>
+
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+          onClick={handleDeleteUser}
+          className='bg-red-600'>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+        </AlertDialog>
+      
+        <Button 
+        variant='ghost' 
+        className='cursor-pointer'>
+          Sign Out
+          </Button>
       </div>
+
+      <p className='text-red-600'>{error}</p>
 
 
     </div>
