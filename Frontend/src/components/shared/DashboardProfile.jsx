@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart, updateSuccess } from '@/redux/user/userSlice'
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutSuccess, updateFailure, updateStart, updateSuccess } from '@/redux/user/userSlice'
 import { getFilePreview, uploadFile } from '@/lib/appwrite/uploadImage'
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from '../ui/alert-dialog'
@@ -105,6 +105,24 @@ const DashboardProfile = () => {
       }
     }
 
+    const handleSignOut = async()=>{
+      try{
+        const res = await fetch("/api/user/signout",{
+          method: "POST"
+        })
+
+        const data = await res.json()
+
+        if(!res.ok){
+          console.log(data.message)
+        }else{
+          dispatch(signOutSuccess())
+        }
+      }catch(error){
+        console.log(error)
+      }
+    }
+
   return <div className='max-w-lg mx-auto p-3 w-full'>
     <h1 className='my-7 text-center font-semibold text-3xl'>
         Update Your Profile
@@ -155,7 +173,7 @@ const DashboardProfile = () => {
 
       <div className='text-red-500 flex justify-between mt-5 cursor-pointer'>
         <AlertDialog>
-          <AlertDialogTrigger asChiled>
+          <AlertDialogTrigger asChild>
               <Button className="cursor-pointer">Delete Account</Button>
           </AlertDialogTrigger>
 
@@ -180,12 +198,13 @@ const DashboardProfile = () => {
       
         <Button 
         variant='ghost' 
+        onClick={handleSignOut}
         className='cursor-pointer'>
           Sign Out
           </Button>
       </div>
 
-      <p className='text-red-600'>{error}</p>
+      <p className='text-red-600' >{error}</p>
 
 
     </div>
