@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { deleteUser } from 'firebase/auth'
 
 const DashboardProfile = () => {
-    const {currentUser, error} = useSelector((state)=>state.user)
+    const {currentUser, error, loading} = useSelector((state)=>state.user)
 
     const profilePicRef = useRef()
     const dispatch = useDispatch()
@@ -168,14 +168,23 @@ const DashboardProfile = () => {
         className="h-12 border border-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
          onChange={handleChange}/>
 
-        <Button type="submit" className="h-12 bg-green-600">Update Profile</Button>
+        <Button 
+        type="submit" 
+        className="h-12 bg-green-600"
+        disabled={loading}>
+        { loading ? "Loading" : "Update Profile"}
+          </Button>
       </form>
 
       <div className='text-red-500 flex justify-between mt-5 cursor-pointer'>
         <AlertDialog>
-          <AlertDialogTrigger asChild>
+          {/* <AlertDialogTrigger asChild>
               <Button className="cursor-pointer">Delete Account</Button>
-          </AlertDialogTrigger>
+          </AlertDialogTrigger> */}
+
+          <AlertDialogTrigger className="cursor-pointer">
+  Delete Account
+</AlertDialogTrigger>
 
           <AlertDialogContent>
         <AlertDialogHeader>
