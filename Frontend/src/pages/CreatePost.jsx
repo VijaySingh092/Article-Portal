@@ -14,9 +14,44 @@ import React from 'react'
 import {useState ,useEffect, useRef } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-
+import { toast } from "sonner"
+import { getFilePreview, uploadFile } from '@/lib/appwrite/uploadImage';
 
 const CreatePost = () => {
+ 
+  const [file, setFile] = useState(null)
+  const [imageUploadError, setImageUploadError] = useState(null)
+  const [imageUploading, setImageUploading] = useState(false)
+
+  const [formData, setFormData] = useState({})
+  const handleUploadImage = async()=>{
+    try{
+      if(!file){
+        setImageUploadError("Please select an image!!")
+         toast.error("Please select an image!")
+         return
+      }
+  
+      setImageUploading(true)
+      setImageUploadError(null)
+
+      const uploadedFile = await uploadFile(file)
+      const postImageUrl = getFilePreview(uploadedFile.$id)
+
+      setFormData({...formData, image:postImageUrl})
+
+      toast.success("Image uploaded successfully!")
+
+      if(postImageUrl){
+        setImageUploading(false)
+      }
+    }catch(error){
+      setImageUploadError("Image upload failed")
+      console.log(error)
+       toast.error("Image upload failed")
+       setImageUploading(false)
+    }
+  }
 
 const editorRef = useRef(null)
 const quillRef = useRef(null)
@@ -83,9 +118,26 @@ useEffect(() => {
             </div>
 
             <div className='flex gap-4 items-center justify-between border-4 border-slate-600 border-dotted p-3'>
-                <input type="file" accept='image/*' />
-                <Button className="bg-slate-700">Upload Image</Button>
+                <input 
+                type="file" 
+                accept='image/*'
+                onChange={(e)=>setFile(e.target.files[0])} />
+                <Button 
+                type="button" 
+                className="bg-slate-700" 
+                onClick={handleUploadImage}>
+                  {imageUploading ? "Uploading..." : "Upload Image"}
+                  </Button>
             </div>
+
+            {imageUploadError && <p className='text-red-600'>{imageUploadError}</p>}
+
+            { formData.image && (
+              <img 
+              src={formData.image} 
+              alt="upload"
+              className='w-full h-72 object-cover' />
+            )}
 
             <div ref={editorRef} className="min-h-72" />
 
