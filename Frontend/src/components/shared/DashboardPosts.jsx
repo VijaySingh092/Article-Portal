@@ -9,6 +9,8 @@ const DashboardPosts = () => {
   const [userPosts, setUserPosts] = useState([])
   console.log(userPosts)
 
+   const [showMore, setShowMore] = useState(true)
+
   useEffect(()=>{
     
     const fetchPosts = async()=>{
@@ -18,6 +20,10 @@ const DashboardPosts = () => {
 
         if(res.ok){
           setUserPosts(data.posts)
+
+          if(data.posts.length<9){
+            setShowMore(false)
+          }
         }
       }catch(error){
         console.log(error)
@@ -29,6 +35,26 @@ const DashboardPosts = () => {
     }
   }, [currentUser._id])
 
+  const handleShowMore = async()=>{
+
+    const startIndex = userPosts.length
+
+    try{
+      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`)
+
+      const data = await res.json()
+
+      if(res.ok){
+        setUserPosts((prev) =>[...prev, ...data.posts])
+        if(data.posts.length<9){
+          setShowMore(false)
+        }
+      }
+    }catch(error){
+      console.log(error.message)
+    }
+  }
+
   return ( 
   <div className='flex flex-col items-center justify-center w-full p-3'>
     {currentUser.isAdmin && userPosts.length>0?(
@@ -37,7 +63,7 @@ const DashboardPosts = () => {
       <TableCaption>A list of recently published articles</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className='w-[200px]'>Date Updated</TableHead>
+          <TableHead className='w-50'>Date Updated</TableHead>
           <TableHead>Post Image</TableHead>
           <TableHead>Post Title</TableHead>
           <TableHead>Category</TableHead>
@@ -89,6 +115,13 @@ const DashboardPosts = () => {
         ))
       }
     </Table>
+
+    {showMore && (
+      <button onClick={handleShowMore} 
+      className='w-full text-blue-700 self-center text-sm py-7'>
+        Show more
+        </button>
+    )}
     </>
   ):(
     <p></p>
