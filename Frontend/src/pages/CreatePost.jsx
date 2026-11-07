@@ -42,7 +42,11 @@ const CreatePost = () => {
       setImageUploadError(null)
 
       const uploadedFile = await uploadFile(file)
-      const postImageUrl = getFilePreview(uploadedFile.$id)
+      console.log("Uploaded File:", uploadedFile);
+
+      const postImageUrl = await getFilePreview(uploadedFile.$id)
+      console.log("Post Image URL:", postImageUrl);
+console.log("Image URL Type:", typeof postImageUrl);
 
       setFormData({...formData, image:postImageUrl})
 
